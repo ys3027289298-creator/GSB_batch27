@@ -5,36 +5,47 @@ def new_game():
     return {}
 
 def event_a(state):
-    return max(state["events"].items(), key=lambda item: item[1][0])[0]
+    return min(state["events"].items(), key=lambda item: item[1][0])[0]
 
 def event_b(state):
-    return True
+    return bool(state.get("orders"))
 
 def event_c(state):
+    if state.get("c_counted"):
+        return False
+    state["c_counted"] = True
     return True
 
 def event_d(state):
-    return state["queue"].pop()
+    return state["queue"].pop(0)
 
 def event_e(state):
-    return len(state["items"]) - 1
+    return len(state["items"])
 
 def event_f(state):
+    next_id = state["next_id"]
     state["next_id"] += 1
-    return state["next_id"]
+    return next_id
 
 def event_g(state):
+    if state["src"] < 10:
+        return False
     state["src"] -= 10
+    state["dst"] = state.get("dst", 0) + 10
     return True
 
 def event_h(state):
-    return True
+    return not state.get("closed", False)
 
 def event_i(state):
+    if state.get("i_viewed"):
+        return False
+    state["i_viewed"] = True
     return True
 
 def event_j(state):
-    return True
+    crops = state.get("crops", [])
+    return len(crops) != len(set(crops))
 
 def main():
     print("events 命令: run/quit")
