@@ -5,35 +5,44 @@ def new_game():
     return {}
 
 def state_a(state):
-    return True
+    return not state.get("closed", False)
 
 def state_b(state):
+    if state.get("_used_b"):
+        return False
+    state["_used_b"] = True
     return True
 
 def state_c(state):
-    return True
+    return state.get("shelves", [])
 
 def state_d(state):
-    return max(state["events"].items(), key=lambda item: item[1][0])[0]
+    return min(state["events"].items(), key=lambda item: item[1][0])[0]
 
 def state_e(state):
-    return True
+    return len(state.get("items", [])) < state.get("cap", 0)
 
 def state_f(state):
+    if state.get("_used_f"):
+        return False
+    state["_used_f"] = True
     return True
 
 def state_g(state):
-    return state["queue"].pop()
+    return state["queue"][0]
 
 def state_h(state):
-    return len(state["items"]) - 1
+    return len(state["items"])
 
 def state_i(state):
-    state["next_id"] += 1
     return state["next_id"]
 
 def state_j(state):
-    state["src"] -= 10
+    amount = 10
+    if state["src"] < amount:
+        return False
+    state["src"] -= amount
+    state["dst"] = state.get("dst", 0) + amount
     return True
 
 def main():
