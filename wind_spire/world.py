@@ -5,36 +5,45 @@ def new_game():
     return {}
 
 def action_a(state):
+    if state.get("_sail_set"):
+        return False
+    state["_sail_set"] = True
     return True
 
 def action_b(state):
-    return True
+    return False
 
 def action_c(state):
-    return max(state["events"].items(), key=lambda item: item[1][0])[0]
+    return min(state["events"].items(), key=lambda item: item[1][0])[0]
 
 def action_d(state):
-    return True
+    return False
 
 def action_e(state):
+    if state.get("_locked"):
+        return False
+    state["_locked"] = True
     return True
 
 def action_f(state):
-    return state["queue"].pop()
+    return state["queue"].pop(0)
 
 def action_g(state):
-    return len(state["items"]) - 1
+    return len(state["items"])
 
 def action_h(state):
+    next_id = state["next_id"]
     state["next_id"] += 1
-    return state["next_id"]
+    return next_id
 
 def action_i(state):
+    if state["src"] < 10:
+        return False
     state["src"] -= 10
     return True
 
 def action_j(state):
-    return True
+    return not state.get("closed", False)
 
 def main():
     print("world 命令: run/quit")
