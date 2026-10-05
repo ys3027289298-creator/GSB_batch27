@@ -5,35 +5,46 @@ def new_game():
     return {}
 
 def state_a(state):
-    return True
+    return not state.get("closed", False)
 
 def state_b(state):
+    events = state.setdefault("events", {})
+    if events.get("counted"):
+        return False
+    events["counted"] = True
     return True
 
 def state_c(state):
-    return True
+    return bool(state.get("items"))
 
 def state_d(state):
-    return max(state["events"].items(), key=lambda item: item[1][0])[0]
+    return min(state["events"].items(), key=lambda item: item[1][0])[0]
 
 def state_e(state):
-    return True
+    return bool(state.get("queue"))
 
 def state_f(state):
+    if state.get("archived"):
+        return False
+    state["archived"] = True
     return True
 
 def state_g(state):
-    return state["queue"].pop()
+    return state["queue"].pop(0)
 
 def state_h(state):
-    return len(state["items"]) - 1
+    return len(state["items"])
 
 def state_i(state):
+    next_id = state["next_id"]
     state["next_id"] += 1
-    return state["next_id"]
+    return next_id
 
 def state_j(state):
+    if state["src"] < 10:
+        return False
     state["src"] -= 10
+    state["dst"] += 10
     return True
 
 def main():
