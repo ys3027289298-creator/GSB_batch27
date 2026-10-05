@@ -59,5 +59,84 @@ class TestEngine(unittest.TestCase):
         self.assertEqual(engine.rule_j(state), 0)
 
 
+class TestInvariants(unittest.TestCase):
+    def test_new_game_satisfies_invariants(self):
+        self.assertTrue(engine.check_invariants(engine.new_game()))
+
+    def test_fuel_invariant(self):
+        self.assertTrue(engine.check_invariants({'used': 1, 'cap': 2}))
+        with self.assertRaises(ValueError):
+            engine.check_invariants({'used': 3, 'cap': 2})
+
+    def test_balance_invariant(self):
+        with self.assertRaises(ValueError):
+            engine.check_invariants({'balance': -1})
+
+    def test_count_invariant(self):
+        with self.assertRaises(ValueError):
+            engine.check_invariants({'count': -1})
+
+    def test_edge_endpoint_invariant(self):
+        self.assertTrue(engine.check_invariants(
+            {'nodes': {1: True, 2: True}, 'edges': {(1, 2): 5}}))
+        with self.assertRaises(ValueError):
+            engine.check_invariants({'nodes': {2: True}, 'edges': {(1, 2): 5}})
+
+    def test_rules_preserve_invariants(self):
+        state = {
+            'events': {1: True},
+            'nodes': {1: True, 2: True},
+            'edges': {(1, 2): 5},
+            'used': 1, 'cap': 2,
+            'queue': [1],
+            'count': 5,
+            'balance': 100,
+            'accounts': {},
+        }
+        for op in (engine.rule_b, engine.rule_e, engine.rule_g,
+                   engine.rule_h, engine.rule_i):
+            op(state)
+            self.assertTrue(engine.check_invariants(state))
+
+
+class TestReplay(unittest.TestCase):
+    def _initial_state(self):
+        return {
+            'events': {1: True},
+            'nodes': {1: True, 2: True},
+            'edges': {(1, 2): 5},
+            'used': 1, 'cap': 2,
+            'queue': [1],
+            'count': 5,
+            'balance': 100,
+            'accounts': {},
+        }
+
+    def test_replay_matches_live_run(self):
+        ops = [engine.rule_b, engine.rule_e, engine.rule_h, engine.rule_i]
+        live = self._initial_state()
+        for op in ops:
+            op(live)
+        self.assertTrue(engine.verify_replay(self._initial_state(), ops, live))
+
+    def test_replay_is_deterministic(self):
+        ops = [engine.rule_b, engine.rule_e, engine.rule_h, engine.rule_i]
+        first = engine.replay(self._initial_state(), ops)
+        second = engine.replay(self._initial_state(), ops)
+        self.assertEqual(first, second)
+
+    def test_replay_does_not_mutate_input(self):
+        state = self._initial_state()
+        snapshot = dict(state)
+        engine.replay(state, [engine.rule_b, engine.rule_h, engine.rule_i])
+        self.assertEqual(state, snapshot)
+
+    def test_replay_enforces_invariants(self):
+        def bad_op(s):
+            s['balance'] = -1
+        with self.assertRaises(ValueError):
+            engine.replay({'balance': 10}, [bad_op])
+
+
 if __name__ == "__main__":
     unittest.main()
