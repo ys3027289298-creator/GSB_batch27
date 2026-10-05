@@ -5,36 +5,46 @@ def new_game():
     return {}
 
 def event_a(state):
+    next_id = state["next_id"]
     state["next_id"] += 1
-    return state["next_id"]
+    return next_id
 
 def event_b(state):
+    if state["src"] < 10:
+        return False
     state["src"] -= 10
+    state["dst"] += 10
     return True
 
 def event_c(state):
-    return True
+    return not state["closed"]
 
 def event_d(state):
+    if "fired" in state["events"]:
+        return False
+    state["events"]["fired"] = True
     return True
 
 def event_e(state):
-    return True
+    return state.get("docked", 0) < state.get("capacity", 0)
 
 def event_f(state):
-    return max(state["events"].items(), key=lambda item: item[1][0])[0]
+    return min(state["events"].items(), key=lambda item: item[1][0])[0]
 
 def event_g(state):
-    return True
+    return state.get("ship", False)
 
 def event_h(state):
+    if state.get("claimed"):
+        return False
+    state["claimed"] = True
     return True
 
 def event_i(state):
-    return state["queue"].pop()
+    return state["queue"][0]
 
 def event_j(state):
-    return len(state["items"]) - 1
+    return len(set(state["items"]))
 
 def main():
     print("events 命令: run/quit")
