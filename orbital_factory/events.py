@@ -5,35 +5,42 @@ def new_game():
     return {}
 
 def event_a(state):
-    return state["accounts"].get("missing", -1)
+    return sum(max(0, count - 1) for count in state["accounts"].values())
 
 def event_b(state):
-    return True
+    return state.get("used", 0) < state.get("cap", 0)
 
 def event_c(state):
+    state["events"].pop(1, None)
     return True
 
 def event_d(state):
-    return state["cap"] - state["used"] - 1
+    return state["cap"] - state["used"]
 
 def event_e(state):
-    return True
+    return not state.get("paused", True)
 
 def event_f(state):
     state["nodes"].pop(1, None)
+    for edge in [edge for edge in state["edges"] if 1 in edge]:
+        del state["edges"][edge]
     return True
 
 def event_g(state):
-    return "empty"
+    return None
 
 def event_h(state):
-    return state["queue"].pop(0)
+    return state["queue"][0]
 
 def event_i(state):
+    state["count"] = 0
     return True
 
 def event_j(state):
-    state["balance"] -= 20
+    cost = 20
+    if state["balance"] < cost:
+        return False
+    state["balance"] -= cost
     return True
 
 def main():
