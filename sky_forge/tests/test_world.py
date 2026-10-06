@@ -58,6 +58,29 @@ class TestWorld(unittest.TestCase):
         state["paused"] = True
         self.assertEqual(world.action_j(state), 0)
 
+    def test_failed_forge_leaves_no_half_materials(self):
+        state = world.new_game()
+        state.update({'paused': False, 'amount': 3})
+        before = dict(state)
+        self.assertFalse(world.action_e(state))
+        self.assertEqual(state, before)
+        self.assertEqual(state["amount"], 3)
+
+    def test_paused_forge_consumes_nothing(self):
+        state = world.new_game()
+        state.update({'paused': True, 'amount': 10})
+        before = dict(state)
+        self.assertFalse(world.action_e(state))
+        self.assertEqual(state, before)
+        self.assertEqual(state["amount"], 10)
+
+    def test_full_furnace_consumes_nothing(self):
+        state = world.new_game()
+        state.update({'items': ['a', 'b'], 'cap': 2})
+        before = list(state["items"])
+        self.assertFalse(world.action_b(state))
+        self.assertEqual(state["items"], before)
+
 
 if __name__ == "__main__":
     unittest.main()
