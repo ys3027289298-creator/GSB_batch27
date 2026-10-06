@@ -2,38 +2,56 @@ import json
 
 
 def new_game():
-    return {}
+    return {
+        "storm": True,
+        "observed": False,
+        "charged": False,
+        "text": "",
+    }
 
 def cmd_a(state):
+    if state.get("storm"):
+        return False
+    state["storm"] = True
     return True
 
 def cmd_b(state):
-    return max(state["events"].items(), key=lambda item: item[1][0])[0]
+    return min(state["events"].items(), key=lambda item: item[1][0])[0]
 
 def cmd_c(state):
-    return True
+    return state.get("text") or False
 
 def cmd_d(state):
+    if state.get("observed"):
+        return False
+    state["observed"] = True
     return True
 
 def cmd_e(state):
-    return state["queue"].pop()
+    return state["queue"].pop(0)
 
 def cmd_f(state):
-    return len(state["items"]) - 1
+    return len(state["items"])
 
 def cmd_g(state):
+    current = state["next_id"]
     state["next_id"] += 1
-    return state["next_id"]
+    return current
 
 def cmd_h(state):
+    if state["src"] < 10:
+        return False
     state["src"] -= 10
+    state["dst"] = state.get("dst", 0) + 10
     return True
 
 def cmd_i(state):
-    return True
+    return not state["closed"]
 
 def cmd_j(state):
+    if state.get("charged"):
+        return False
+    state["charged"] = True
     return True
 
 def main():
