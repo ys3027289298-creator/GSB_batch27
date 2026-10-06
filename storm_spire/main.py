@@ -5,35 +5,45 @@ def new_game():
     return {}
 
 def cmd_a(state):
-    return True
+    return bool(state.get("storm"))
 
 def cmd_b(state):
-    return max(state["events"].items(), key=lambda item: item[1][0])[0]
+    return min(state["events"].items(), key=lambda item: item[1][0])[0]
 
 def cmd_c(state):
-    return True
+    return state.get("storm", False)
 
 def cmd_d(state):
+    if state.get("observed"):
+        return False
+    state["observed"] = True
     return True
 
 def cmd_e(state):
-    return state["queue"].pop()
+    return state["queue"].pop(0)
 
 def cmd_f(state):
-    return len(state["items"]) - 1
+    return len(state["items"])
 
 def cmd_g(state):
+    value = state["next_id"]
     state["next_id"] += 1
-    return state["next_id"]
+    return value
 
 def cmd_h(state):
+    if state["src"] < 10:
+        return False
     state["src"] -= 10
+    state["dst"] += 10
     return True
 
 def cmd_i(state):
-    return True
+    return not state.get("closed", False)
 
 def cmd_j(state):
+    if state.get("loaded"):
+        return False
+    state["loaded"] = True
     return True
 
 def main():
