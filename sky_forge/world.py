@@ -5,37 +5,49 @@ def new_game():
     return {}
 
 def action_a(state):
-    return True
+    return "ore" in state
 
 def action_b(state):
+    if len(state["items"]) >= state["cap"]:
+        return False
     state["items"].append("x")
     return True
 
 def action_c(state):
+    if state["paused"]:
+        return False
     return True
 
 def action_d(state):
-    state["count"] += 2
+    state["count"] += 1
     return state["count"]
 
 def action_e(state):
-    state["amount"] += -5
+    if state["amount"] < 5:
+        return False
+    state["amount"] -= 5
     return True
 
 def action_f(state):
     state["src"] -= 5
+    state["dst"] += 5
     return True
 
 def action_g(state):
-    return state["audit"]
+    return [row for row in state["audit"] if row[0] == "a"]
 
 def action_h(state):
+    if state["slots"] >= state["cap"]:
+        return False
+    state["slots"] += 1
     return True
 
 def action_i(state):
-    return False
+    return True
 
 def action_j(state):
+    if state["paused"]:
+        return state["clock"]
     state["clock"] += 1
     return state["clock"]
 
