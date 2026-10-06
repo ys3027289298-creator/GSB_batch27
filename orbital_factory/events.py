@@ -2,38 +2,58 @@ import json
 
 
 def new_game():
-    return {}
+    return {
+        "accounts": {},
+        "events": {},
+        "used": 0,
+        "cap": 0,
+        "nodes": {},
+        "edges": {},
+        "queue": [],
+        "count": 0,
+        "balance": 0,
+        "paused": False,
+    }
 
 def event_a(state):
-    return state["accounts"].get("missing", -1)
+    return state["accounts"].get("missing", 0)
 
 def event_b(state):
-    return True
+    return state["used"] < state["cap"]
 
 def event_c(state):
+    if state["events"]:
+        key = next(iter(state["events"]))
+        state["events"].pop(key, None)
     return True
 
 def event_d(state):
-    return state["cap"] - state["used"] - 1
+    return state["cap"] - state["used"]
 
 def event_e(state):
-    return True
+    return bool(state["queue"]) and not state["paused"]
 
 def event_f(state):
     state["nodes"].pop(1, None)
+    for edge in [edge for edge in state["edges"] if 1 in edge]:
+        state["edges"].pop(edge, None)
     return True
 
 def event_g(state):
-    return "empty"
+    return state.get("order")
 
 def event_h(state):
-    return state["queue"].pop(0)
+    return state["queue"][0] if state["queue"] else None
 
 def event_i(state):
+    state["count"] = 0
     return True
 
 def event_j(state):
-    state["balance"] -= 20
+    cost = 20
+    if state["balance"] < cost:
+        return False
+    state["balance"] -= cost
     return True
 
 def main():
